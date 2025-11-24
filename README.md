@@ -66,6 +66,27 @@ An AI-powered system that classifies text as polite, neutral, or impolite using 
 - [ ] Case study: Real-world validation
 - [ ] Implement feedback loop for adaptive learning
 
+## 📊 Results
+
+### SVM Baseline (Phase 2.1 - COMPLETED)
+
+**Model:** Support Vector Machine with TF-IDF features
+**Accuracy:** 68.43% on test set
+
+**Performance by Class:**
+- Impolite: Precision 0.72, Recall 0.89, F1 0.80
+- Neutral: Precision 0.58, Recall 0.31, F1 0.40  
+- Polite: Precision 0.61, Recall 0.48, F1 0.54
+
+**Key Findings:**
+- Model performs best on Impolite class (66% of data)
+- Struggles with Neutral class (often confused with Impolite)
+- Class imbalance affects performance
+
+**Next Steps:**
+- Implement SMOTE for class balancing
+- Try LSTM for sequence understanding
+- Fine-tune BERT for better context
 ---
 
 ## 🛠️ Installation

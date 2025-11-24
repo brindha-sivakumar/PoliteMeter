@@ -47,3 +47,5 @@ results/*.pdf
 # Temporary files
 *.log
 *.tmp
+
+!data/processed/politeness_corpus_processed.csv
