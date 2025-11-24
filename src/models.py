@@ -31,21 +31,14 @@ class PolitenessClassifierSVM:
         self.model.predict(X)
     
     def evaluate(self, texts, true_labels):
-        """
-        YOUR CHALLENGE: Evaluate model performance
+        predictions = self.predict(texts)
         
-        Args:
-            texts: array/list of text strings
-            true_labels: array/list of true labels
+        accuracy = accuracy_score(true_labels, predictions)
+        report = classification_report(true_labels, predictions)
+        conf_matrix = confusion_matrix(true_labels, predictions)
         
-        TODO:
-        1. Get predictions
-        2. Calculate accuracy
-        3. Get detailed classification report
-        4. Generate confusion matrix
-        
-        Returns:
-            dict with 'accuracy', 'report', 'confusion_matrix'
-        """
-        # YOUR CODE HERE
-        pass
+        return {
+            'accuracy': accuracy,
+            'report': report,
+            'confusion_matrix': conf_matrix
+        }
