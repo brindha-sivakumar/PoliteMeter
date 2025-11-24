@@ -22,8 +22,12 @@ class PolitenessClassifierSVM:
     
     def train(self, texts, labels):
         
+        print(f"   Training on {len(texts)} samples...")
         X = self.vectorizer.fit_transform(texts)
+        print(f"   Feature matrix shape: {X.shape}")
         self.model.fit(X, labels)
+        print(f"   ✅ Model trained!")
+        return self
     
     def predict(self, texts):
         
