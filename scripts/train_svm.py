@@ -56,4 +56,43 @@ def main():
     # Train model
     print("\n🔄 Training SVM classifier...")
     print("-"*80)
-    model = PolitenessClassi
+    model = PolitenessClassifierSVM()
+    model.train(X_train, y_train)
+    
+    # Quick evaluation
+    print("\n📊 Quick Evaluation on Test Set...")
+    results = model.evaluate(X_test, y_test)
+    
+    print(f"\n🎯 Accuracy: {results['accuracy']:.4f} ({results['accuracy']*100:.2f}%)")
+    print(f"\n📋 Classification Report:")
+    print(results['report'])
+    
+    # Save model
+    print("\n💾 Saving model...")
+    model.save_model('models/svm_baseline.pkl')
+    
+    # Save results
+    import json
+    os.makedirs('results', exist_ok=True)
+    
+    results_summary = {
+        'model': 'SVM Baseline',
+        'accuracy': float(results['accuracy']),
+        'train_samples': len(X_train),
+        'test_samples': len(X_test),
+        'class_distribution': data['Politeness'].value_counts().to_dict()
+    }
+    
+    with open('results/svm_baseline_results.json', 'w') as f:
+        json.dump(results_summary, f, indent=2)
+    
+    print("✅ Results saved to results/svm_baseline_results.json")
+    
+    print("\n"+"="*80)
+    print("✅ TRAINING COMPLETE!")
+    print("="*80)
+    
+    return model, results
+
+if __name__ == "__main__":
+    model, results = main()
