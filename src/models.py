@@ -32,7 +32,8 @@ class PolitenessClassifierSVM:
     def predict(self, texts):
         
         X = self.vectorizer.transform(texts)
-        self.model.predict(X)
+        predictions = self.model.predict(X)
+        return predictions
     
     def evaluate(self, texts, true_labels):
         predictions = self.predict(texts)
