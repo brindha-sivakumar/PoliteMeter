@@ -210,7 +210,33 @@ class LSTMClassifier(nn.Module):
     
     # Test the LSTM network (add to __main__ section)
 if __name__ == "__main__":
-    # ... (previous dataset test code) ...
+    test_texts = [
+        "Could you please help me?",
+        "This is stupid!",
+        "I need help with this."
+    ]
+    test_labels = ['Polite', 'Impolite', 'Neutral']
+    
+    # Create dataset
+    dataset = PolitenessDataset(test_texts, test_labels, max_length=10)
+    
+    print("✅ Dataset created!")
+    print(f"   Vocabulary size: {len(dataset.vocab)}")
+    print(f"   Number of samples: {len(dataset)}")
+    
+    # Test __getitem__
+    text_tensor, label_tensor = dataset[0]
+    print(f"\n✅ First sample:")
+    print(f"   Text IDs shape: {text_tensor.shape}")
+    print(f"   Text IDs: {text_tensor}")
+    print(f"   Label: {label_tensor} (0=Impolite, 1=Neutral, 2=Polite)")
+    
+    # Check vocabulary
+    print(f"\n✅ Sample vocabulary entries:")
+    for word in ['<PAD>', '<UNK>', 'please', 'help']:
+        word_id = dataset.vocab.get(word, 'NOT FOUND')
+        print(f"   '{word}': {word_id}")
+
     
     print("\n" + "="*60)
     print("🧪 TESTING LSTM NETWORK")
