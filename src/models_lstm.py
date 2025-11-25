@@ -270,9 +270,9 @@ class PolitenessClassifierLSTM:
         return vocab
     
     def train(self, texts, labels, epochs=10, batch_size=32, learning_rate=0.001):
-        """Train the LSTM model with class weighting"""
+        """Train the LSTM model with class weighting for imbalanced data"""
         print(f"\n{'='*80}")
-        print(f"🔄 TRAINING LSTM MODEL")
+        print(f"🔄 TRAINING LSTM MODEL WITH CLASS WEIGHTS")
         print(f"{'='*80}")
         print(f"   Training samples: {len(texts)}")
         print(f"   Epochs: {epochs}")
@@ -302,32 +302,31 @@ class PolitenessClassifierLSTM:
         self.model = self.model.to(self.device)
         print(f"   ✅ Model initialized")
         
-        # Step 4: Calculate class weights for imbalanced data
-        print("   Calculating class weights for imbalanced data...")
-        from collections import Counter
+        # Step 4: Calculate class weights to handle imbalanced data
+        print("\n   🎯 Calculating class weights to handle imbalance...")
         label_counts = Counter(labels)
         
         total_samples = len(labels)
         class_weights = []
+        
+        print(f"   Class distribution:")
         for class_name in ['Impolite', 'Neutral', 'Polite']:
             count = label_counts[class_name]
             weight = total_samples / (3 * count)
             class_weights.append(weight)
+            print(f"      {class_name}: {count} samples (weight: {weight:.3f})")
         
         class_weights_tensor = torch.tensor(class_weights, dtype=torch.float32).to(self.device)
         
-        print(f"   ✅ Class weights calculated:")
-        print(f"      Impolite: {class_weights[0]:.3f} (n={label_counts['Impolite']})")
-        print(f"      Neutral:  {class_weights[1]:.3f} (n={label_counts['Neutral']})")
-        print(f"      Polite:   {class_weights[2]:.3f} (n={label_counts['Polite']})")
-        
-        # Define weighted loss and optimizer
+        # Use WEIGHTED loss function
         criterion = nn.CrossEntropyLoss(weight=class_weights_tensor)
         optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
         
+        print(f"   ✅ Using weighted CrossEntropyLoss")
+        
         # Step 5: Training loop
         print(f"\n{'='*80}")
-        print("   TRAINING PROGRESS")
+        print("   TRAINING PROGRESS (with per-class tracking)")
         print(f"{'='*80}")
         
         self.model.train()
@@ -338,8 +337,8 @@ class PolitenessClassifierLSTM:
             total = 0
             
             # Track per-class predictions
-            class_correct = [0, 0, 0]
-            class_total = [0, 0, 0]
+            class_correct = {0: 0, 1: 0, 2: 0}
+            class_total = {0: 0, 1: 0, 2: 0}
             
             for batch_texts, batch_labels in train_loader:
                 batch_texts = batch_texts.to(self.device)
@@ -359,21 +358,22 @@ class PolitenessClassifierLSTM:
                 
                 # Track per-class accuracy
                 for i in range(len(batch_labels)):
-                    label = batch_labels[i].item()
-                    class_total[label] += 1
-                    if predicted[i] == label:
-                        class_correct[label] += 1
+                    label_idx = batch_labels[i].item()
+                    class_total[label_idx] += 1
+                    if predicted[i] == batch_labels[i]:
+                        class_correct[label_idx] += 1
             
             # Calculate metrics
             avg_loss = total_loss / len(train_loader)
             accuracy = 100 * correct / total
             
             # Per-class accuracies
-            class_acc = [100 * class_correct[i] / class_total[i] if class_total[i] > 0 else 0 
-                        for i in range(3)]
+            imp_acc = 100 * class_correct[0] / class_total[0] if class_total[0] > 0 else 0
+            neu_acc = 100 * class_correct[1] / class_total[1] if class_total[1] > 0 else 0
+            pol_acc = 100 * class_correct[2] / class_total[2] if class_total[2] > 0 else 0
             
-            print(f"   Epoch [{epoch+1}/{epochs}] - Loss: {avg_loss:.4f} - "
-                f"Acc: {accuracy:.2f}% (Imp:{class_acc[0]:.1f}% Neu:{class_acc[1]:.1f}% Pol:{class_acc[2]:.1f}%)")
+            print(f"   Epoch [{epoch+1:2d}/{epochs}] Loss: {avg_loss:.4f} | "
+                f"Acc: {accuracy:.2f}% | Imp: {imp_acc:.1f}% Neu: {neu_acc:.1f}% Pol: {pol_acc:.1f}%")
         
         print(f"\n{'='*80}")
         print("✅ TRAINING COMPLETE!")
