@@ -101,7 +101,7 @@ class PolitenessDataset(Dataset):
         
         return text_tensor, label_tensor
     
-    class LSTMClassifier(nn.Module):
+class LSTMClassifier(nn.Module):
     """
     LSTM Neural Network for text classification
     
@@ -110,7 +110,7 @@ class PolitenessDataset(Dataset):
     """
     
     def __init__(self, vocab_size, embedding_dim=100, hidden_dim=256, output_dim=3, 
-                 num_layers=2, dropout=0.5):
+                num_layers=2, dropout=0.5):
         """
         TODO: Initialize the network layers
         
@@ -160,7 +160,7 @@ class PolitenessDataset(Dataset):
         # nn.Linear(hidden_dim, output_dim)
         
         self.fc = nn.Linear(hidden_dim, output_dim)
-    
+
     def forward(self, text):
         """
         TODO: Define forward pass (how data flows through network)
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     print("\n" + "="*60)
     print("🧪 TESTING LSTM NETWORK")
     print("="*60)
-    
+        
     # Create network
     vocab_size = len(dataset.vocab)
     model = LSTMClassifier(
