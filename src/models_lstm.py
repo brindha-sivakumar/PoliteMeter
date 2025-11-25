@@ -270,118 +270,116 @@ class PolitenessClassifierLSTM:
         return vocab
     
     def train(self, texts, labels, epochs=10, batch_size=32, learning_rate=0.001):
-        """
-        TODO: Train the LSTM model
+    """Train the LSTM model with class weighting"""
+    print(f"\n{'='*80}")
+    print(f"🔄 TRAINING LSTM MODEL")
+    print(f"{'='*80}")
+    print(f"   Training samples: {len(texts)}")
+    print(f"   Epochs: {epochs}")
+    print(f"   Batch size: {batch_size}")
+    print(f"   Learning rate: {learning_rate}")
+    
+    # Step 1: Build vocabulary
+    self.vocab = self._build_vocab(texts)
+    
+    # Step 2: Create dataset and dataloader
+    print("   Creating dataset...")
+    train_dataset = PolitenessDataset(texts, labels, self.vocab, self.max_length)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    print(f"   ✅ DataLoader created: {len(train_loader)} batches")
+    
+    # Step 3: Initialize model
+    print("   Initializing model...")
+    vocab_size = len(self.vocab)
+    self.model = LSTMClassifier(
+        vocab_size=vocab_size,
+        embedding_dim=self.embedding_dim,
+        hidden_dim=self.hidden_dim,
+        output_dim=3,
+        num_layers=self.num_layers,
+        dropout=self.dropout
+    )
+    self.model = self.model.to(self.device)
+    print(f"   ✅ Model initialized")
+    
+    # Step 4: Calculate class weights for imbalanced data
+    print("   Calculating class weights for imbalanced data...")
+    from collections import Counter
+    label_counts = Counter(labels)
+    
+    total_samples = len(labels)
+    class_weights = []
+    for class_name in ['Impolite', 'Neutral', 'Polite']:
+        count = label_counts[class_name]
+        weight = total_samples / (3 * count)
+        class_weights.append(weight)
+    
+    class_weights_tensor = torch.tensor(class_weights, dtype=torch.float32).to(self.device)
+    
+    print(f"   ✅ Class weights calculated:")
+    print(f"      Impolite: {class_weights[0]:.3f} (n={label_counts['Impolite']})")
+    print(f"      Neutral:  {class_weights[1]:.3f} (n={label_counts['Neutral']})")
+    print(f"      Polite:   {class_weights[2]:.3f} (n={label_counts['Polite']})")
+    
+    # Define weighted loss and optimizer
+    criterion = nn.CrossEntropyLoss(weight=class_weights_tensor)
+    optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
+    
+    # Step 5: Training loop
+    print(f"\n{'='*80}")
+    print("   TRAINING PROGRESS")
+    print(f"{'='*80}")
+    
+    self.model.train()
+    
+    for epoch in range(epochs):
+        total_loss = 0
+        correct = 0
+        total = 0
         
-        Args:
-            texts: List of text strings
-            labels: List of labels ('Polite', 'Neutral', 'Impolite')
-            epochs: Number of training epochs
-            batch_size: Batch size for training
-            learning_rate: Learning rate for optimizer
-        """
-        print(f"\n{'='*80}")
-        print(f"🔄 TRAINING LSTM MODEL")
-        print(f"{'='*80}")
-        print(f"   Training samples: {len(texts)}")
-        print(f"   Epochs: {epochs}")
-        print(f"   Batch size: {batch_size}")
-        print(f"   Learning rate: {learning_rate}")
+        # Track per-class predictions
+        class_correct = [0, 0, 0]
+        class_total = [0, 0, 0]
         
-        # Step 1: Build vocabulary from training data
-        self.vocab = self._build_vocab(texts)
-        
-        # Step 2: Create dataset and dataloader
-        print("   Creating dataset...")
-        train_dataset = PolitenessDataset(texts, labels, self.vocab, self.max_length)
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        print(f"   ✅ DataLoader created: {len(train_loader)} batches")
-        
-        # Step 3: Initialize model
-        print("   Initializing model...")
-        vocab_size = len(self.vocab)
-        self.model = LSTMClassifier(
-            vocab_size=vocab_size,
-            embedding_dim=self.embedding_dim,
-            hidden_dim=self.hidden_dim,
-            output_dim=3,
-            num_layers=self.num_layers,
-            dropout=self.dropout
-        )
-        self.model = self.model.to(self.device)
-        print(f"   ✅ Model initialized")
-        
-        # Step 4: Define loss function and optimizer
-        # YOUR CODE HERE
-        # Hint 1: Use nn.CrossEntropyLoss() for multi-class classification
-        # Hint 2: Use optim.Adam() as optimizer
-        
-        criterion = nn.CrossEntropyLoss()
-        optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
-        
-        # Step 5: Training loop
-        print(f"\n{'='*80}")
-        print("   TRAINING PROGRESS")
-        print(f"{'='*80}")
-        
-        self.model.train()  # Set model to training mode
-        
-        for epoch in range(epochs):
-            total_loss = 0
-            correct = 0
-            total = 0
+        for batch_texts, batch_labels in train_loader:
+            batch_texts = batch_texts.to(self.device)
+            batch_labels = batch_labels.to(self.device)
             
-            # YOUR CODE HERE - Training loop
-            # Steps for each batch:
-            # 1. Get batch from dataloader
-            # 2. Move to device (GPU/CPU)
-            # 3. Zero gradients: optimizer.zero_grad()
-            # 4. Forward pass: predictions = model(texts)
-            # 5. Calculate loss: loss = criterion(predictions, labels)
-            # 6. Backward pass: loss.backward()
-            # 7. Update weights: optimizer.step()
-            # 8. Track accuracy
+            optimizer.zero_grad()
+            outputs = self.model(batch_texts)
+            loss = criterion(outputs, batch_labels)
+            loss.backward()
+            optimizer.step()
             
-            for batch_texts, batch_labels in train_loader:
-                # Move to device
-                batch_texts = batch_texts.to(self.device)
-                batch_labels = batch_labels.to(self.device)
-                
-                # Zero gradients
-                optimizer.zero_grad()
-                
-                # Forward pass
-                outputs = self.model(batch_texts)
-                
-                # Calculate loss
-                loss = criterion(outputs, batch_labels)
-                
-                # Backward pass
-                loss.backward()
-                
-                # Update weights
-                optimizer.step()
-                
-                # Track metrics
-                total_loss += loss.item()
-                
-                # Calculate accuracy
-                _, predicted = torch.max(outputs, 1)
-                total += batch_labels.size(0)
-                correct += (predicted == batch_labels).sum().item()
+            total_loss += loss.item()
             
-            # Calculate epoch metrics
-            avg_loss = total_loss / len(train_loader)
-            accuracy = 100 * correct / total
+            _, predicted = torch.max(outputs, 1)
+            total += batch_labels.size(0)
+            correct += (predicted == batch_labels).sum().item()
             
-            # Print progress every epoch
-            print(f"   Epoch [{epoch+1}/{epochs}] - Loss: {avg_loss:.4f} - Accuracy: {accuracy:.2f}%")
+            # Track per-class accuracy
+            for i in range(len(batch_labels)):
+                label = batch_labels[i].item()
+                class_total[label] += 1
+                if predicted[i] == label:
+                    class_correct[label] += 1
         
-        print(f"\n{'='*80}")
-        print("✅ TRAINING COMPLETE!")
-        print(f"{'='*80}")
+        # Calculate metrics
+        avg_loss = total_loss / len(train_loader)
+        accuracy = 100 * correct / total
         
-        return self
+        # Per-class accuracies
+        class_acc = [100 * class_correct[i] / class_total[i] if class_total[i] > 0 else 0 
+                     for i in range(3)]
+        
+        print(f"   Epoch [{epoch+1}/{epochs}] - Loss: {avg_loss:.4f} - "
+              f"Acc: {accuracy:.2f}% (Imp:{class_acc[0]:.1f}% Neu:{class_acc[1]:.1f}% Pol:{class_acc[2]:.1f}%)")
+    
+    print(f"\n{'='*80}")
+    print("✅ TRAINING COMPLETE!")
+    print(f"{'='*80}")
+    
+    return self
     
     def predict(self, texts):
         """
