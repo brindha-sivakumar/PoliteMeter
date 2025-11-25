@@ -48,8 +48,6 @@ class PolitenessClassifierSVM:
             'confusion_matrix': conf_matrix
         }
     
-    # In src/models.py, add these methods to the class:
-
     def save_model(self, filepath='models/svm_baseline.pkl'):
         
         import pickle
