@@ -145,4 +145,4 @@ def main():
     return lstm_model, results
 
 if __name__ == "__main__":
-    model, results = main()
+    model, results = main() 
