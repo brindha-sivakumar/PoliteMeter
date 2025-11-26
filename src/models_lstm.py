@@ -312,7 +312,8 @@ class PolitenessClassifierLSTM:
             #raw_weight = total_samples / (3 * count)
             raw_weight = total_samples / (len(label_counts) * count)
             # Soften using square root (reduces extreme values)
-            softened_weight = raw_weight ** 1.0
+            # Use a hyper-aggressive exponent (2.0) to force learning
+            softened_weight = raw_weight ** 2.0
             class_weights.append(softened_weight)
             print(f"      {class_name}: {count} samples | "
                   f"raw: {raw_weight:.3f} → softened: {softened_weight:.3f}")
