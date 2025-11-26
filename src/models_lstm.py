@@ -309,9 +309,10 @@ class PolitenessClassifierLSTM:
         for class_name in ['Impolite', 'Neutral', 'Polite']:
             count = label_counts[class_name]
             # Calculate inverse frequency
-            raw_weight = total_samples / (3 * count)
+            #raw_weight = total_samples / (3 * count)
+            raw_weight = total_samples / (len(label_counts) * count)
             # Soften using square root (reduces extreme values)
-            softened_weight = raw_weight ** 0.5
+            softened_weight = raw_weight ** 1.0
             class_weights.append(softened_weight)
             print(f"      {class_name}: {count} samples | "
                   f"raw: {raw_weight:.3f} → softened: {softened_weight:.3f}")
