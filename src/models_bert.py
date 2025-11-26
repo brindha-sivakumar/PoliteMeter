@@ -9,13 +9,13 @@ from torch.utils.data import Dataset, DataLoader
 from transformers import (
     BertTokenizer, 
     BertForSequenceClassification,
-    AdamW,
     get_linear_schedule_with_warmup
 )
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import numpy as np
 from tqdm import tqdm
 import os
+from torch.optim import AdamW
 
 
 class PolitenessDatasetBERT(Dataset):
