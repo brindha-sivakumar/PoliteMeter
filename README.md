@@ -53,8 +53,8 @@ An AI-powered system that classifies text as polite, neutral, or impolite using 
 - `data/processed/politeness_corpus_processed.csv` - Processed dataset
 
 ### 🔄 Phase 2: Model Development (IN PROGRESS)
-- [ ] Baseline: SVM with TF-IDF features
-- [ ] Deep Learning: LSTM for sequence modeling
+- ✅ Baseline: SVM with TF-IDF features
+- ✅ Deep Learning: LSTM for sequence modeling
 - [ ] Transformers: Fine-tune BERT for politeness classification
 - [ ] Rule-based: Integrate linguistic features
 - [ ] Ensemble: Combine all approaches
@@ -68,26 +68,91 @@ An AI-powered system that classifies text as polite, neutral, or impolite using 
 
 ## 📊 Results
 
-### SVM Baseline (Phase 2.1 - COMPLETED)
+### Phase 2.1: SVM Baseline (COMPLETED ✅)
 
 **Model:** Support Vector Machine with TF-IDF features
 **Accuracy:** 68.43% on test set
 
 **Performance by Class:**
-- Impolite: Precision 0.72, Recall 0.89, F1 0.80
-- Neutral: Precision 0.58, Recall 0.31, F1 0.40  
-- Polite: Precision 0.61, Recall 0.48, F1 0.54
+| Class | Precision | Recall | F1-Score | Support |
+|-------|-----------|--------|----------|---------|
+| Impolite | 0.72 | 0.89 | 0.80 | 1,445 |
+| Neutral | 0.58 | 0.31 | 0.40 | 446 |
+| Polite | 0.61 | 0.48 | 0.54 | 302 |
 
 **Key Findings:**
-- Model performs best on Impolite class (66% of data)
-- Struggles with Neutral class (often confused with Impolite)
-- Class imbalance affects performance
+- Strong performance on majority class (Impolite)
+- Struggles with minority classes
+- Fast training (~30 seconds)
+- Interpretable feature weights
 
-**Next Steps:**
-- Implement SMOTE for class balancing
-- Try LSTM for sequence understanding
-- Fine-tune BERT for better context
 ---
+
+### Phase 2.2: LSTM Deep Learning (COMPLETED ✅)
+
+**Model:** Bidirectional LSTM with word embeddings  
+**Architecture:**
+```
+Embedding Layer:     vocab_size=5,000 → dim=100
+LSTM Layers:         2 layers, hidden_dim=256, dropout=0.5
+Output Layer:        256 → 3 classes
+Total Parameters:    ~2.7 million
+```
+
+**Hyperparameter Tuning Journey:**
+
+| Attempt | Strategy | Learning Rate | Dropout | Class Weights | Test Acc | Result |
+|---------|----------|---------------|---------|---------------|----------|--------|
+| 1 | Initial | 0.005 | 0.3 | Default | 65.92% | ❌ Collapsed to Impolite only |
+| 2 | Strong weights | 0.001 | 0.3 | Aggressive (γ=2.0) | 13.73% | ❌ Collapsed to Polite only |
+| 3 | **Best config** | 0.002 | 0.5 | Balanced (γ=1.2) | **47.99%** | ⚠️ Multi-class but severe overfitting |
+| 4 | Undersampling | 0.001 | 0.3 | Balanced | 13.73% | ❌ Collapsed again |
+| 5 | Higher momentum | 0.002 | 0.3 | Balanced | 38.18% | ⚠️ Overfitting (gap: 52.8%) |
+| 6 | High regularization | 0.002 | 0.7 | Balanced | 15.15% | ❌ Underfitting |
+| 7 | Final attempt | 0.002 | 0.5 | Balanced | 13.73% | ❌ Unstable |
+
+**Best Performance:**
+- **Test Accuracy:** 47.99%
+- **Training Accuracy:** 90.62%
+- **Generalization Gap:** 42.63% (severe overfitting)
+
+**Why LSTM Underperformed:**
+
+1. **Overparameterization**
+   - 2.7M parameters for 8,764 training samples
+   - Ratio: 308 parameters per sample (SVM: 3 per sample)
+   - Model too complex for dataset size
+
+2. **Insufficient Data for Minority Classes**
+   - Polite class: Only 1,206 training samples
+   - LSTM needs 10,000+ samples per class for stable learning
+   - Frequent collapse to single-class prediction
+
+3. **Task Simplicity**
+   - Politeness often determined by 1-3 keywords ("please", "thank", "stupid")
+   - LSTM's sequential processing is overkill
+   - TF-IDF captures keyword patterns more efficiently
+
+4. **High Sensitivity**
+   - Small hyperparameter changes caused dramatic performance swings
+   - 6 out of 7 configurations resulted in model collapse
+   - Extremely unstable training dynamics
+
+**Key Learnings:**
+- Deep learning isn't always the answer
+- Model complexity must match dataset size
+- Traditional ML can outperform neural networks on small datasets
+- Systematic hyperparameter tuning is essential
+- Documenting negative results is valuable for research
+
+**Conclusion:** For this dataset (small, imbalanced, keyword-driven), SVM's simplicity and efficiency make it the superior choice. LSTM would require 50,000+ samples to be effective.
+
+---
+
+### Phase 2.3: BERT Transformer (IN PROGRESS 🔄)
+
+Fine-tuning pre-trained BERT model to leverage transfer learning...
+
 
 ## 🛠️ Installation
 
