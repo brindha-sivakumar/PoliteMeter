@@ -64,7 +64,7 @@ def main():
         labels=y_train,
         epochs=50,              # Number of training epochs
         batch_size=32,          # Batch size
-        learning_rate=0.001   # Learning rate
+        learning_rate=0.002   # Learning rate
     )
     
     # Evaluate on test set
