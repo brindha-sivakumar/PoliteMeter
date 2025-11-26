@@ -316,8 +316,9 @@ class PolitenessClassifierLSTM:
             raw_weight = total_samples / (3 * count)
             # Soften using square root (reduces extreme values)
             softened_weight = raw_weight ** 0.5
-            class_weights.append(weight)
-            print(f"      {class_name}: {count} samples (weight: {weight:.3f})")
+            class_weights.append(softened_weight)
+            print(f"      {class_name}: {count} samples | "
+                  f"raw: {raw_weight:.3f} → softened: {softened_weight:.3f}")
         
         class_weights_tensor = torch.tensor(class_weights, dtype=torch.float32).to(self.device)
         
