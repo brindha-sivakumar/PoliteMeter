@@ -124,8 +124,7 @@ class LSTMClassifier(nn.Module):
         """
         super(LSTMClassifier, self).__init__()
         
-        # YOUR CODE HERE
-        # Hint 1: Create embedding layer
+        # Create embedding layer
         # nn.Embedding(vocab_size, embedding_dim, padding_idx=0)
         # padding_idx=0 means embeddings for <PAD> won't be updated
         
@@ -135,8 +134,7 @@ class LSTMClassifier(nn.Module):
             padding_idx=0  # Don't learn embeddings for padding
         )
         
-        # YOUR CODE HERE
-        # Hint 2: Create LSTM layer
+        # Create LSTM layer
         # nn.LSTM(embedding_dim, hidden_dim, num_layers, 
         #         batch_first=True, dropout=dropout, bidirectional=False)
         
@@ -149,17 +147,15 @@ class LSTMClassifier(nn.Module):
             bidirectional=True
         )
         
-        # YOUR CODE HERE
-        # Hint 3: Create dropout layer for regularization
+        # Create dropout layer for regularization
         # nn.Dropout(dropout)
         
         self.dropout = nn.Dropout(dropout)
         
-        # YOUR CODE HERE
-        # Hint 4: Create final linear layer to map hidden state to classes
+        # Create final linear layer to map hidden state to classes
         # nn.Linear(hidden_dim, output_dim)
-        
-        self.fc = nn.Linear(hidden_dim, output_dim)
+        # Input must be 2 * hidden_dim for a bidirectional LSTM
+        self.fc = nn.Linear(hidden_dim * 2, output_dim)
 
     def forward(self, text):
         """
