@@ -146,7 +146,7 @@ class LSTMClassifier(nn.Module):
             num_layers=num_layers,
             batch_first=True,  # Input shape: (batch, seq, feature)
             dropout=dropout if num_layers > 1 else 0,  # Only dropout between layers
-            bidirectional=False
+            bidirectional=True
         )
         
         # YOUR CODE HERE
