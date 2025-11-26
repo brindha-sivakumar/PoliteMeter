@@ -150,7 +150,7 @@ class LSTMClassifier(nn.Module):
         # Create dropout layer for regularization
         # nn.Dropout(dropout)
         
-        self.dropout = nn.Dropout(dropout)
+        self.dropout = nn.Dropout(0.7)
         
         # Create final linear layer to map hidden state to classes
         # nn.Linear(hidden_dim, output_dim)
