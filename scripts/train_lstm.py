@@ -81,7 +81,7 @@ def main():
         hidden_dim=256,         # LSTM hidden state size
         max_length=100,         # Maximum sequence length
         num_layers=2,           # Number of LSTM layers
-        dropout=0.7             # Dropout for regularization
+        dropout=0.5             # Dropout for regularization
     )
     
     # Train model
