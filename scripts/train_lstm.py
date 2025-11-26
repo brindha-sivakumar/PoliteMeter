@@ -62,9 +62,9 @@ def main():
     lstm_model.train(
         texts=X_train,
         labels=y_train,
-        epochs=10,              # Number of training epochs
+        epochs=20,              # Number of training epochs
         batch_size=32,          # Batch size
-        learning_rate=0.001     # Learning rate
+        learning_rate=0.0001     # Learning rate
     )
     
     # Evaluate on test set

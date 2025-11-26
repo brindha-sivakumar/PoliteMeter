@@ -312,7 +312,10 @@ class PolitenessClassifierLSTM:
         print(f"   Class distribution:")
         for class_name in ['Impolite', 'Neutral', 'Polite']:
             count = label_counts[class_name]
-            weight = total_samples / (3 * count)
+            # Calculate inverse frequency
+            raw_weight = total_samples / (3 * count)
+            # Soften using square root (reduces extreme values)
+            softened_weight = raw_weight ** 0.5
             class_weights.append(weight)
             print(f"      {class_name}: {count} samples (weight: {weight:.3f})")
         
