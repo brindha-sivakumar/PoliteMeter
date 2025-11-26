@@ -110,7 +110,7 @@ class LSTMClassifier(nn.Module):
     """
     
     def __init__(self, vocab_size, embedding_dim=100, hidden_dim=256, output_dim=3, 
-                num_layers=2, dropout=0.3):
+                num_layers=2, dropout=0.7):
         """
         TODO: Initialize the network layers
         
@@ -150,7 +150,7 @@ class LSTMClassifier(nn.Module):
         # Create dropout layer for regularization
         # nn.Dropout(dropout)
         
-        self.dropout = nn.Dropout(0.3)
+        self.dropout = nn.Dropout(dropout)
         
         # Create final linear layer to map hidden state to classes
         # nn.Linear(hidden_dim, output_dim)
