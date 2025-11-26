@@ -211,7 +211,7 @@ class PolitenessClassifierLSTM:
     """
     
     def __init__(self, embedding_dim=100, hidden_dim=256, max_length=100, 
-                 num_layers=2, dropout=0.5):
+                 num_layers=2, dropout=0.3):
         """
         Initialize the LSTM classifier
         
