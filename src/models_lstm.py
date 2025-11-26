@@ -110,7 +110,7 @@ class LSTMClassifier(nn.Module):
     """
     
     def __init__(self, vocab_size, embedding_dim=100, hidden_dim=256, output_dim=3, 
-                num_layers=2, dropout=0.5):
+                num_layers=2, dropout=0.3):
         """
         TODO: Initialize the network layers
         

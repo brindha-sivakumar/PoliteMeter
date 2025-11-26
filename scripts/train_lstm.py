@@ -13,6 +13,7 @@ from src.data_loader import load_processed_data
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import torch
+import numpy as np
 
 def main():
     print("="*80)
@@ -44,6 +45,35 @@ def main():
     print(f"   Training samples: {len(X_train)}")
     print(f"   Test samples: {len(X_test)}")
     
+    # Combine training data into a DataFrame for easy sampling
+    train_df = pd.DataFrame({'text': X_train, 'label': y_train})
+    
+    # Get the count of the second largest class (Neutral: 1781 samples)
+    target_size = train_df['label'].value_counts().iloc[1] 
+    
+    # Separate majority and other classes
+    df_majority = train_df[train_df.label == 'Impolite']
+    df_minority = train_df[train_df.label != 'Impolite']
+    
+    # Undersample majority class
+    print(f"\n📉 Undersampling 'Impolite' class to {target_size} samples...")
+    df_majority_undersampled = df_majority.sample(
+        n=target_size,
+        random_state=42
+    )
+    
+    # Combine undersampled majority with minority classes
+    df_train_balanced = pd.concat([df_majority_undersampled, df_minority]).sample(frac=1, random_state=42)
+    
+    X_train_balanced = df_train_balanced['text'].values
+    y_train_balanced = df_train_balanced['label'].values
+    
+    print(f"✅ Training samples after undersampling: {len(X_train_balanced)}")
+    
+    # Recalculate class distribution on balanced training data
+    print(f"\n📊 Balanced Training Class Distribution:")
+    print(pd.Series(y_train_balanced).value_counts())
+
     # Create LSTM classifier
     print("\n🏗️  Creating LSTM classifier...")
     lstm_model = PolitenessClassifierLSTM(
@@ -60,11 +90,13 @@ def main():
     print("="*80)
     
     lstm_model.train(
-        texts=X_train,
-        labels=y_train,
+        texts=X_train_balanced,
+        labels=y_train_balanced,
+        X_val=X_test,
+        y_val=y_test,
         epochs=50,              # Number of training epochs
         batch_size=32,          # Batch size
-        learning_rate=0.005   # Learning rate
+        learning_rate=0.001   # Learning rate
     )
     
     # Evaluate on test set
