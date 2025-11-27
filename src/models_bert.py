@@ -137,6 +137,29 @@ class PolitenessClassifierBERT:
         print("   TRAINING PROGRESS (with Early Stopping)")
         print(f"{'='*80}")
 
+        # Split data for validation
+        X_train, X_val, y_train, y_val = train_test_split(
+            texts, labels, test_size=validation_split, random_state=42, stratify=labels
+        )
+        
+        # Create DataLoaders
+        train_dataset = PolitenessDatasetBERT(X_train, y_train, self.tokenizer, self.max_length)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        
+        val_dataset = PolitenessDatasetBERT(X_val, y_val, self.tokenizer, self.max_length)
+        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+            
+        # Initialize Optimizer and Scheduler
+        total_steps = len(train_loader) * epochs
+        
+        # NOTE: AdamW is needed from torch.optim or transformers
+        optimizer = AdamW(self.model.parameters(), lr=self.learning_rate, eps=1e-8)
+        scheduler = get_linear_schedule_with_warmup(
+            optimizer,
+            num_warmup_steps=0,
+            num_training_steps=total_steps
+        )
+
         best_val_accuracy = 0
         best_epoch = 0
         patience = 2
