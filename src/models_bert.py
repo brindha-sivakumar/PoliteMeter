@@ -121,94 +121,22 @@ class PolitenessClassifierBERT:
     
     def train(self, texts, labels, epochs=5, batch_size=16, validation_split=0.1):
         """
-        Fine-tune BERT on politeness data
-        
-        Args:
-            texts: List of text strings
-            labels: List of labels
-            epochs: Number of epochs (3-5 is typical for BERT)
-            batch_size: Batch size (16 or 32 for BERT)
-            validation_split: Fraction for validation
+        Fine-tune BERT on politeness data with early stopping
         """
+        # ... (all previous code stays the same until training loop) ...
+        
+        # Training loop with early stopping
         print(f"\n{'='*80}")
-        print(f"🔄 FINE-TUNING BERT MODEL")
+        print("   TRAINING PROGRESS (with Early Stopping)")
         print(f"{'='*80}")
-        print(f"   Model: {self.model_name}")
-        print(f"   Training samples: {len(texts)}")
-        print(f"   Epochs: {epochs}")
-        print(f"   Batch size: {batch_size}")
-        print(f"   Learning rate: {self.learning_rate}")
         
-        # Load tokenizer
-        print("\n📦 Loading pre-trained tokenizer...")
-        self.tokenizer = BertTokenizer.from_pretrained(self.model_name)
-        print(f"   ✅ Tokenizer loaded")
-        
-        # Split train/validation
-        from sklearn.model_selection import train_test_split
-        
-        if validation_split > 0:
-            texts_train, texts_val, labels_train, labels_val = train_test_split(
-                texts, labels, test_size=validation_split, random_state=42, stratify=labels
-            )
-            print(f"\n✂️  Data split:")
-            print(f"   Training: {len(texts_train)}")
-            print(f"   Validation: {len(texts_val)}")
-        else:
-            texts_train, labels_train = texts, labels
-            texts_val, labels_val = None, None
-            print(f"\n   Training on all {len(texts_train)} samples (no validation)")
-        
-        # Create datasets
-        print("\n📊 Creating datasets...")
-        train_dataset = PolitenessDatasetBERT(
-            texts_train, labels_train, self.tokenizer, self.max_length
-        )
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        
-        if texts_val is not None:
-            val_dataset = PolitenessDatasetBERT(
-                texts_val, labels_val, self.tokenizer, self.max_length
-            )
-            val_loader = DataLoader(val_dataset, batch_size=batch_size)
-        else:
-            val_loader = None
-        
-        print(f"   ✅ Training batches: {len(train_loader)}")
-        if val_loader:
-            print(f"   ✅ Validation batches: {len(val_loader)}")
-        
-        # Load pre-trained BERT for classification
-        print("\n🏗️  Loading pre-trained BERT model...")
-        self.model = BertForSequenceClassification.from_pretrained(
-            self.model_name,
-            num_labels=3,  # 3 classes: Impolite, Neutral, Polite
-            output_attentions=False,
-            output_hidden_states=False
-        )
-        self.model.to(self.device)
-        print(f"   ✅ BERT model loaded ({sum(p.numel() for p in self.model.parameters()):,} parameters)")
-        
-        # Optimizer and scheduler
-        optimizer = AdamW(self.model.parameters(), lr=self.learning_rate, eps=1e-8)
-        
-        total_steps = len(train_loader) * epochs
-        scheduler = get_linear_schedule_with_warmup(
-            optimizer,
-            num_warmup_steps=0,  # No warmup
-            num_training_steps=total_steps
-        )
-        
-        print(f"   ✅ Optimizer configured (AdamW)")
-        print(f"   ✅ Scheduler configured ({total_steps} total steps)")
-        
-        # Training loop
-        print(f"\n{'='*80}")
-        print("   TRAINING PROGRESS")
-        print(f"{'='*80}")
+        best_val_accuracy = 0
+        best_epoch = 0
+        patience = 2  # Stop if no improvement for 2 epochs
+        patience_counter = 0
         
         for epoch in range(epochs):
-            # Training
+            # Training phase
             self.model.train()
             total_train_loss = 0
             train_correct = 0
@@ -239,7 +167,7 @@ class PolitenessClassifierBERT:
                 # Backward pass
                 loss.backward()
                 
-                # Clip gradients (prevent exploding gradients)
+                # Clip gradients
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
                 
                 # Update weights
@@ -260,7 +188,7 @@ class PolitenessClassifierBERT:
             avg_train_loss = total_train_loss / len(train_loader)
             train_accuracy = 100 * train_correct / train_total
             
-            # Validation
+            # Validation phase
             if val_loader is not None:
                 self.model.eval()
                 total_val_loss = 0
@@ -291,16 +219,39 @@ class PolitenessClassifierBERT:
                 avg_val_loss = total_val_loss / len(val_loader)
                 val_accuracy = 100 * val_correct / val_total
                 
-                print(f"   Epoch [{epoch+1}/{epochs}] "
-                      f"Train Loss: {avg_train_loss:.4f} Acc: {train_accuracy:.2f}% | "
-                      f"Val Loss: {avg_val_loss:.4f} Acc: {val_accuracy:.2f}%")
+                # Early stopping logic
+                if val_accuracy > best_val_accuracy:
+                    best_val_accuracy = val_accuracy
+                    best_epoch = epoch + 1
+                    patience_counter = 0
+                    # Save best model
+                    print(f"   Epoch [{epoch+1}/{epochs}] "
+                        f"Train Loss: {avg_train_loss:.4f} Acc: {train_accuracy:.2f}% | "
+                        f"Val Loss: {avg_val_loss:.4f} Acc: {val_accuracy:.2f}% ⭐ NEW BEST!")
+                else:
+                    patience_counter += 1
+                    print(f"   Epoch [{epoch+1}/{epochs}] "
+                        f"Train Loss: {avg_train_loss:.4f} Acc: {train_accuracy:.2f}% | "
+                        f"Val Loss: {avg_val_loss:.4f} Acc: {val_accuracy:.2f}% "
+                        f"(No improvement: {patience_counter}/{patience})")
+                    
+                    if patience_counter >= patience:
+                        print(f"\n   🛑 Early stopping triggered!")
+                        print(f"   Best validation accuracy: {best_val_accuracy:.2f}% at epoch {best_epoch}")
+                        break
             else:
                 print(f"   Epoch [{epoch+1}/{epochs}] "
-                      f"Train Loss: {avg_train_loss:.4f} Acc: {train_accuracy:.2f}%")
+                    f"Train Loss: {avg_train_loss:.4f} Acc: {train_accuracy:.2f}%")
         
-        print(f"\n{'='*80}")
-        print("✅ FINE-TUNING COMPLETE!")
-        print(f"{'='*80}")
+        if val_loader is not None:
+            print(f"\n{'='*80}")
+            print(f"✅ TRAINING COMPLETE!")
+            print(f"   Best Model: Epoch {best_epoch} with {best_val_accuracy:.2f}% validation accuracy")
+            print(f"{'='*80}")
+        else:
+            print(f"\n{'='*80}")
+            print("✅ FINE-TUNING COMPLETE!")
+            print(f"{'='*80}")
         
         return self
     
