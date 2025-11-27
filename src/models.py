@@ -77,40 +77,39 @@ class PolitenessClassifierSVM:
             'confusion_matrix': confusion_matrix(true_labels, predictions),
             'predictions': predictions
         }
-# In src/models.py, add these methods to the class:
 
-def save_model(self, filepath='models/svm_baseline.pkl'):
-    """
-    Save the trained model to disk
-    
-    Args:
-        filepath: Path to save the model
-    """
-    import pickle
-    import os
-    
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    
-    with open(filepath, 'wb') as f:
-        pickle.dump(self, f)
-    
-    print(f"💾 Model saved to {filepath}")
+    def save_model(self, filepath='models/svm_baseline.pkl'):
+        """
+        Save the trained model to disk
+        
+        Args:
+            filepath: Path to save the model
+        """
+        import pickle
+        import os
+        
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        
+        with open(filepath, 'wb') as f:
+            pickle.dump(self, f)
+        
+        print(f"💾 Model saved to {filepath}")
 
-@staticmethod
-def load_model(filepath='models/svm_baseline.pkl'):
-    """
-    Load a trained model from disk
-    
-    Args:
-        filepath: Path to the saved model
-    
-    Returns:
-        Loaded model
-    """
-    import pickle
-    
-    with open(filepath, 'rb') as f:
-        model = pickle.load(f)
-    
-    print(f"✅ Model loaded from {filepath}")
-    return model
+    @staticmethod
+    def load_model(filepath='models/svm_baseline.pkl'):
+        """
+        Load a trained model from disk
+        
+        Args:
+            filepath: Path to the saved model
+        
+        Returns:
+            Loaded model
+        """
+        import pickle
+        
+        with open(filepath, 'rb') as f:
+            model = pickle.load(f)
+        
+        print(f"✅ Model loaded from {filepath}")
+        return model
