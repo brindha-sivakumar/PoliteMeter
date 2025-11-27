@@ -143,7 +143,7 @@ class PolitenessClassifierBERT:
 
         for epoch in range(epochs):
             # Training phase
-            self.model. ()
+            self.model.train()
             total_train_loss = 0
             train_correct = 0
             train_total = 0
