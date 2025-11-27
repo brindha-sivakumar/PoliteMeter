@@ -6,6 +6,7 @@ BERT-based politeness classifier using Hugging Face Transformers
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
+from sklearn.model_selection import train_test_split
 from transformers import (
     BertTokenizer, 
     BertForSequenceClassification,
