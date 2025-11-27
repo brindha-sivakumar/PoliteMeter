@@ -118,7 +118,6 @@ class PolitenessClassifierBERT:
             model_name,
             num_labels=3 # Assuming 3 classes: Polite, Neutral, Impolite
         )
-        self.model.to(self.device)
 
         self.label_map = {'Impolite': 0, 'Neutral': 1, 'Polite': 2}
         self.reverse_label_map = {0: 'Impolite', 1: 'Neutral', 2: 'Polite'}
@@ -127,6 +126,8 @@ class PolitenessClassifierBERT:
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         print(f"🖥️  Using device: {self.device}")
     
+        self.model.to(self.device)
+
     def train(self, texts, labels, epochs=5, batch_size=16, validation_split=0.1):
         """
         Fine-tune BERT on politeness data with early stopping
