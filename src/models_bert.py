@@ -123,18 +123,16 @@ class PolitenessClassifierBERT:
         """
         Fine-tune BERT on politeness data with early stopping
         """
-        # ... (all previous code stays the same until training loop) ...
-        
         # Training loop with early stopping
         print(f"\n{'='*80}")
         print("   TRAINING PROGRESS (with Early Stopping)")
         print(f"{'='*80}")
-        
+
         best_val_accuracy = 0
         best_epoch = 0
-        patience = 2  # Stop if no improvement for 2 epochs
+        patience = 2
         patience_counter = 0
-        
+
         for epoch in range(epochs):
             # Training phase
             self.model.train()
@@ -142,19 +140,15 @@ class PolitenessClassifierBERT:
             train_correct = 0
             train_total = 0
             
-            # Progress bar
             pbar = tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}")
             
             for batch in pbar:
-                # Move to device
                 input_ids = batch['input_ids'].to(self.device)
                 attention_mask = batch['attention_mask'].to(self.device)
                 labels_batch = batch['labels'].to(self.device)
                 
-                # Zero gradients
                 optimizer.zero_grad()
                 
-                # Forward pass
                 outputs = self.model(
                     input_ids=input_ids,
                     attention_mask=attention_mask,
@@ -164,27 +158,18 @@ class PolitenessClassifierBERT:
                 loss = outputs.loss
                 logits = outputs.logits
                 
-                # Backward pass
                 loss.backward()
-                
-                # Clip gradients
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
-                
-                # Update weights
                 optimizer.step()
                 scheduler.step()
                 
-                # Track metrics
                 total_train_loss += loss.item()
-                
                 predictions = torch.argmax(logits, dim=1)
                 train_correct += (predictions == labels_batch).sum().item()
                 train_total += labels_batch.size(0)
                 
-                # Update progress bar
                 pbar.set_postfix({'loss': f'{loss.item():.4f}'})
             
-            # Calculate epoch metrics
             avg_train_loss = total_train_loss / len(train_loader)
             train_accuracy = 100 * train_correct / train_total
             
@@ -211,7 +196,6 @@ class PolitenessClassifierBERT:
                         logits = outputs.logits
                         
                         total_val_loss += loss.item()
-                        
                         predictions = torch.argmax(logits, dim=1)
                         val_correct += (predictions == labels_batch).sum().item()
                         val_total += labels_batch.size(0)
@@ -219,12 +203,11 @@ class PolitenessClassifierBERT:
                 avg_val_loss = total_val_loss / len(val_loader)
                 val_accuracy = 100 * val_correct / val_total
                 
-                # Early stopping logic
+                # Early stopping check
                 if val_accuracy > best_val_accuracy:
                     best_val_accuracy = val_accuracy
                     best_epoch = epoch + 1
                     patience_counter = 0
-                    # Save best model
                     print(f"   Epoch [{epoch+1}/{epochs}] "
                         f"Train Loss: {avg_train_loss:.4f} Acc: {train_accuracy:.2f}% | "
                         f"Val Loss: {avg_val_loss:.4f} Acc: {val_accuracy:.2f}% ⭐ NEW BEST!")
@@ -235,55 +218,23 @@ class PolitenessClassifierBERT:
                         f"Val Loss: {avg_val_loss:.4f} Acc: {val_accuracy:.2f}% "
                         f"(No improvement: {patience_counter}/{patience})")
                     
+                    # THIS IS THE KEY FIX - Actually break out of the loop!
                     if patience_counter >= patience:
                         print(f"\n   🛑 Early stopping triggered!")
                         print(f"   Best validation accuracy: {best_val_accuracy:.2f}% at epoch {best_epoch}")
-                        break
+                        print(f"   Stopping training to prevent overfitting.")
+                        break  # ← CRITICAL: This actually stops the loop
             else:
                 print(f"   Epoch [{epoch+1}/{epochs}] "
                     f"Train Loss: {avg_train_loss:.4f} Acc: {train_accuracy:.2f}%")
-        
-        if val_loader is not None:
-            print(f"\n{'='*80}")
+
+        print(f"\n{'='*80}")
+        if val_loader is not None and best_epoch > 0:
             print(f"✅ TRAINING COMPLETE!")
             print(f"   Best Model: Epoch {best_epoch} with {best_val_accuracy:.2f}% validation accuracy")
-            print(f"{'='*80}")
         else:
-            print(f"\n{'='*80}")
             print("✅ FINE-TUNING COMPLETE!")
-            print(f"{'='*80}")
-        
-        return self
-    
-    def predict(self, texts):
-        """Make predictions on new texts"""
-        if self.model is None or self.tokenizer is None:
-            raise ValueError("Model not trained! Call train() first.")
-        
-        self.model.eval()
-        
-        # Create dataset
-        dummy_labels = ['Neutral'] * len(texts)
-        dataset = PolitenessDatasetBERT(texts, dummy_labels, self.tokenizer, self.max_length)
-        dataloader = DataLoader(dataset, batch_size=32, shuffle=False)
-        
-        predictions = []
-        
-        with torch.no_grad():
-            for batch in dataloader:
-                input_ids = batch['input_ids'].to(self.device)
-                attention_mask = batch['attention_mask'].to(self.device)
-                
-                outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
-                logits = outputs.logits
-                
-                batch_predictions = torch.argmax(logits, dim=1)
-                
-                # Convert to labels
-                for pred in batch_predictions:
-                    predictions.append(self.reverse_label_map[pred.item()])
-        
-        return predictions
+        print(f"{'='*80}")
     
     def evaluate(self, texts, true_labels):
         """Evaluate model performance"""

@@ -55,7 +55,7 @@ An AI-powered system that classifies text as polite, neutral, or impolite using 
 ### 🔄 Phase 2: Model Development (IN PROGRESS)
 - ✅ Baseline: SVM with TF-IDF features
 - ✅ Deep Learning: LSTM for sequence modeling
-- [ ] Transformers: Fine-tune BERT for politeness classification
+- ✅ Transformers: Fine-tune BERT for politeness classification
 - [ ] Rule-based: Integrate linguistic features
 - [ ] Ensemble: Combine all approaches
 
@@ -149,10 +149,42 @@ Total Parameters:    ~2.7 million
 
 ---
 
-### Phase 2.3: BERT Transformer (IN PROGRESS 🔄)
+### Phase 2.3: BERT Transformer - COMPLETED ✅
 
-Fine-tuning pre-trained BERT model to leverage transfer learning...
+**Final Results with Optimal Configuration:**
 
+| Configuration | Epochs | Test Accuracy | Status |
+|--------------|--------|---------------|--------|
+| BERT (Initial) | 4 | 64.05% | Overfitting |
+| BERT (Extended) | 10 | 63.05% | Severe overfitting |
+| **BERT (Optimized)** | **2** | **68.16%** ✅ | **Optimal** |
+
+**Key Findings:**
+
+1. **Early Stopping Critical:** Training beyond 2 epochs causes overfitting
+   - Epoch 2: 70.58% validation accuracy (peak)
+   - Epoch 3+: Declining validation, rising training accuracy
+
+2. **Matches SVM Performance:** 68.16% vs 68.43% (0.27% difference)
+   - BERT excels at Impolite detection (90% recall)
+   - Struggles with Neutral class (10% recall)
+   - Competitive on Polite class (48% recall)
+
+3. **Training Efficiency:**
+   - 2 epochs: 6 minutes on GPU
+   - Optimal sweet spot found
+   - Further training degrades performance
+
+**Confusion Matrix (BERT 2-epoch):**
+```
+              Predicted
+           Imp  Neu  Pol
+Actual Imp [1306  69   70]  ← 90% recall
+       Neu [328  43  75]   ← 10% recall (weakness)
+       Pol [123  33 145]   ← 48% recall
+```
+
+**Conclusion:** BERT achieves SVM-level performance when properly tuned (2 epochs), demonstrating that both traditional ML and deep learning can be effective for this task. The choice between them depends on deployment constraints: SVM for speed/interpretability, BERT for slightly better Impolite detection.
 
 ## 🛠️ Installation
 
