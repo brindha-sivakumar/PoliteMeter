@@ -143,10 +143,12 @@ class PolitenessRuleScorer:
         self.all_keywords = self.POLITE_LEXICON.union(self.IMPOLITE_LEXICON)
 
     def _clean_text(self, text):
-        """Standard cleaning: lowercase, remove punctuation."""
+        """Standard cleaning: lowercase, remove punctuation, remove simple stop words."""
         text = text.lower()
-        text = text.translate(str.maketrans('', '', string.punctuation))
-        return text.split()
+        # Replace punctuation with a space to separate words like "fix this!"
+        text = text.translate(str.maketrans(string.punctuation, ' '*len(string.punctuation))) 
+        words = [word for word in text.split() if word not in STOP_WORDS and len(word) > 1]
+        return words
 
     def score_text(self, text):
         """
@@ -181,4 +183,7 @@ class PolitenessRuleScorer:
 
     def calculate_scores(self, texts):
         """Applies scoring to a list of texts."""
+        if not isinstance(texts, list):
+            texts = list(texts) 
+            
         return np.array([self.score_text(text) for text in texts])
