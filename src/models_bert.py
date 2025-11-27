@@ -268,6 +268,37 @@ class PolitenessClassifierBERT:
         else:
             print("✅ FINE-TUNING COMPLETE!")
         print(f"{'='*80}")
+
+    def predict(self, texts):
+        """Make predictions on new texts"""
+        if self.model is None or self.tokenizer is None:
+            raise ValueError("Model not trained! Call train() first.")
+        
+        self.model.eval()
+        
+        # Create dataset
+        dummy_labels = ['Neutral'] * len(texts)
+        dataset = PolitenessDatasetBERT(texts, dummy_labels, self.tokenizer, self.max_length)
+        dataloader = DataLoader(dataset, batch_size=32, shuffle=False)
+        
+        predictions = []
+        
+        with torch.no_grad():
+            for batch in dataloader:
+                input_ids = batch['input_ids'].to(self.device)
+                attention_mask = batch['attention_mask'].to(self.device)
+                
+                outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
+                logits = outputs.logits
+                
+                batch_predictions = torch.argmax(logits, dim=1)
+                
+                # Convert to labels
+                for pred in batch_predictions:
+                    predictions.append(self.reverse_label_map[pred.item()])
+        
+        return predictions
+        print(f"{'='*80}")
     
     def evaluate(self, texts, true_labels):
         """Evaluate model performance"""
