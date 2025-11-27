@@ -109,9 +109,17 @@ class PolitenessClassifierBERT:
         self.max_length = max_length
         self.learning_rate = learning_rate
         
-        self.tokenizer = None
-        self.model = None
-        
+        #self.tokenizer = None
+        #self.model = None
+
+        self.tokenizer = BertTokenizer.from_pretrained(model_name)
+        # 💡 Critical: This line might be missing or failing!
+        self.model = BertForSequenceClassification.from_pretrained(
+            model_name,
+            num_labels=3 # Assuming 3 classes: Polite, Neutral, Impolite
+        )
+        self.model.to(self.device)
+
         self.label_map = {'Impolite': 0, 'Neutral': 1, 'Polite': 2}
         self.reverse_label_map = {0: 'Impolite', 1: 'Neutral', 2: 'Polite'}
         
@@ -135,7 +143,7 @@ class PolitenessClassifierBERT:
 
         for epoch in range(epochs):
             # Training phase
-            self.model.train()
+            self.model. ()
             total_train_loss = 0
             train_correct = 0
             train_total = 0
