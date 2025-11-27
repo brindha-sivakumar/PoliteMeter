@@ -13,6 +13,22 @@ import re
 from nltk.corpus import stopwords
 import string
 from scipy.sparse import hstack
+# Rule-Based Imports
+import re
+from nltk.corpus import stopwords
+import string
+
+
+# ======================================================================
+# RULE-BASED SCORER
+# ======================================================================
+
+# Fallback for NLTK stopwords if resource download fails
+try:
+    STOP_WORDS = set(stopwords.words('english'))
+except LookupError:
+    # Use a minimal fallback set
+    STOP_WORDS = {'the', 'a', 'an', 'is', 'it', 'to', 'in', 'on', 'and', 'but', 'or'}
 
 class PolitenessClassifierSVM:
     """SVM-based politeness classifier using TF-IDF features AUGMENTED with Rule-Based Score"""
