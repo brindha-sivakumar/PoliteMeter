@@ -15,6 +15,8 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Utility function for tokenizing test data (copied from train_bert_simple.py)
 def tokenize_data(texts, labels, tokenizer, label_map):
@@ -92,6 +94,39 @@ def main():
     report = classification_report(true_labels, pred_labels)
     cm = confusion_matrix(true_labels, pred_labels, labels=['Impolite', 'Neutral', 'Polite'])
     
+    # --- VISUALIZATION BLOCK ---
+    print("\n🎨 Generating visualizations...")
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    classes = ['Impolite', 'Neutral', 'Polite']
+
+    # Confusion Matrix
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Reds',
+                xticklabels=classes, yticklabels=classes,
+                ax=axes[0])
+    axes[0].set_ylabel('Actual')
+    axes[0].set_xlabel('Predicted')
+    axes[0].set_title('BERT Confusion Matrix')
+
+    # Per-class accuracy
+    # Normalize by row to get per-class accuracy
+    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    class_accs = [cm_normalized[i, i] for i in range(3)]
+    colors = ['#ff6b6b', '#ffd93d', '#6bcf7f']
+    axes[1].bar(classes, class_accs, color=colors, alpha=0.7, edgecolor='black')
+    axes[1].set_ylabel('Accuracy')
+    axes[1].set_title('BERT Per-Class Accuracy')
+    axes[1].set_ylim([0, 1])
+
+    for i, v in enumerate(class_accs):
+        axes[1].text(i, v + 0.02, f'{v:.2%}', ha='center', fontweight='bold')
+
+    plt.tight_layout()
+    os.makedirs('results', exist_ok=True)
+    plt.savefig('results/bert_evaluation.png', dpi=150, bbox_inches='tight')
+    print("✅ Visualization saved to results/bert_evaluation.png")
+    # ---------------------------
+    
     # Display results
     print(f"\n{'='*80}")
     print("RESULTS: ACCURACY, PRECISION, RECALL, F1-SCORE")
@@ -102,7 +137,6 @@ def main():
     
     # Per-class analysis
     print(f"\n📈 Per-Class Performance:")
-    classes = ['Impolite', 'Neutral', 'Polite']
     
     for i, label in enumerate(classes):
         total = cm[i].sum()
