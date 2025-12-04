@@ -104,8 +104,7 @@ def download_new_politeness_data():
     """
     
     # URL for the raw JSON file from the GitHub repository
-    URL = "https://raw.githubusercontent.com/tag-and-generate/politeness-dataset/master/data/politeness_data.json"
-    
+    URL = "https://raw.githubusercontent.com/tag-and-generate/politeness-dataset/master/TagAndGenerateData/data/politeness_data.json"    
     print("\n📦 Downloading New Politeness Dataset (Tag and Generate Corpus)...")
     
     try:
