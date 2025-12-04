@@ -11,7 +11,7 @@ sys.path.insert(0, '/content/PoliteMeter')
 os.chdir('/content/PoliteMeter')
 
 from src.models import PolitenessClassifierSVM
-from src.data_loader import load_processed_data, download_official_corpus, save_processed_data
+from src.data_loader import load_processed_data, download_official_corpus, save_processed_data, download_new_politeness_data
 from src.preprocessing import preprocess_dataset
 from sklearn.model_selection import train_test_split
 import pandas as pd
@@ -29,7 +29,6 @@ def main():
     except FileNotFoundError:
         print("⚠️  Processed data not found. Downloading...")
         wiki_data, se_data = download_official_corpus()
-        from src.data_loader import download_new_politeness_data
         new_data = download_new_politeness_data()
         combined = pd.concat([wiki_data, se_data, new_data], ignore_index=True)
         #combined = pd.concat([wiki_data, se_data], ignore_index=True)
