@@ -1,6 +1,6 @@
 {
   "model": "SVM Baseline",
-  "accuracy": 0.5583941605839416,
+  "accuracy": 0.5246350364963503,
   "train_samples": 8764,
   "test_samples": 2192,
   "class_distribution": {
