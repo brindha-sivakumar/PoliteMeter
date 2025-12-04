@@ -1,0 +1,9 @@
+{
+  "model": "LSTM",
+  "accuracy": 0.4083029197080292,
+  "train_samples": 8764,
+  "test_samples": 2192,
+  "epochs": 10,
+  "embedding_dim": 100,
+  "hidden_dim": 256
+}
