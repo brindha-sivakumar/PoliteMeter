@@ -8,7 +8,7 @@ import json
 import urllib.request
 import zipfile
 import os
-from . import config
+from src import config
 
 
 def download_official_corpus(save_path=None):
