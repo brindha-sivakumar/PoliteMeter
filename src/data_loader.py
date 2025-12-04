@@ -173,3 +173,20 @@ def save_processed_data(df, file_path=None):
     
     df.to_csv(file_path, index=False)
     print(f"💾 Saved processed data to: {file_path}")
+
+if __name__ == "__main__":
+    print("Running data_loader.py directly for testing...")
+    
+    try:
+        # Attempt to download the official corpus
+        wiki_data, se_data = download_official_corpus()
+        
+        # Attempt to download the new corpus
+        new_data = download_new_politeness_data()
+        
+        # Total
+        total_samples = len(wiki_data) + len(se_data) + len(new_data)
+        print(f"\n✅ All corpora downloaded successfully, totaling {total_samples} raw samples.")
+        
+    except Exception as e:
+        print(f"\n❌ A critical error occurred during download: {e}")
