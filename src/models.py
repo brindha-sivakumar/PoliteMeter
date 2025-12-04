@@ -16,10 +16,10 @@ class PolitenessClassifierSVM:
     
     def __init__(self):
         
-        #self.vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1, 2), min_df=2)
+        self.vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1, 2), min_df=2)
 
-        #self.model = SVC(kernel='linear', class_weight='balanced', random_state=42)
-
+        self.model = SVC(kernel='linear', class_weight='balanced', random_state=42)
+        """"
         self.vectorizer = TfidfVectorizer(
             max_features=7000,           # Optimized feature count
             ngram_range=(1, 2), 
@@ -33,7 +33,7 @@ class PolitenessClassifierSVM:
             class_weight='balanced', 
             random_state=42
         )
-    
+        """
     def train(self, texts, labels):
         
         print(f"   Training on {len(texts)} samples...")
