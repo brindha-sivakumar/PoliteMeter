@@ -46,7 +46,7 @@ def main():
     
     # Display results
     print(f"\n{'='*80}")
-    print("RESULTS")
+    print("RESULTS: ACCURACY, PRECISION, RECALL, F1-SCORE")
     print(f"{'='*80}")
     print(f"\n🎯 Overall Accuracy: {results['accuracy']:.4f} ({results['accuracy']*100:.2f}%)")
     print(f"\n📋 Detailed Classification Report:")
