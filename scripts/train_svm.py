@@ -98,4 +98,20 @@ def main():
     return model, results
 
 if __name__ == "__main__":
-    model, results = main()
+    try:
+        model, results = main()
+    except FileNotFoundError:
+        print("⚠️  Processed data not found. Downloading all raw corpora...")
+        
+        # 1. Download official corpus (returns wiki_data, se_data)
+        wiki_data, se_data = download_official_corpus()
+        
+        # 2. Download the new corpus
+        from src.data_loader import download_new_politeness_data # Make sure to import this!
+        new_data = download_new_politeness_data()
+        
+        # 3. Combine all three DataFrames (CRITICAL STEP)
+        combined = pd.concat([wiki_data, se_data, new_data], ignore_index=True)
+        
+        # 4. Preprocess and save
+        data = preprocess_dataset(combined)
