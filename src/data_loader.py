@@ -93,6 +93,45 @@ def download_official_corpus(save_path=None):
     
     return wiki_data, se_data
 
+def download_new_politeness_data():
+    """
+    Downloads the new politeness dataset from the Tag-and-Generate GitHub repository.
+    
+    Returns:
+        pd.DataFrame: A DataFrame containing 'Utterance' (raw text) and 
+                      'Normalized Score' (politeness score 0-1) from the new corpus, 
+                      or an empty DataFrame on failure.
+    """
+    
+    # URL for the raw JSON file from the GitHub repository
+    URL = "https://raw.githubusercontent.com/tag-and-generate/politeness-dataset/master/politeness_data.json"
+    
+    print("\n📦 Downloading New Politeness Dataset (Tag and Generate Corpus)...")
+    
+    try:
+        # Fetch the JSON content
+        with urllib.request.urlopen(URL) as url:
+            # Note: This loads the entire JSON file into memory
+            data = json.load(url)
+        
+        print(f"   ✅ Downloaded {len(data)} samples.")
+        
+        # Transform into a DataFrame, mapping 'text' to 'Utterance' 
+        # and 'politeness_score' to 'Normalized Score'
+        new_data_df = pd.DataFrame([
+            {
+                'Utterance': item['text'],
+                'Normalized Score': item['politeness_score']
+            }
+            for item in data
+        ])
+        
+        print("   ✅ New data loaded into DataFrame.")
+        return new_data_df
+    
+    except Exception as e:
+        print(f"   ❌ Error downloading or parsing new data: {e}")
+        return pd.DataFrame()
 
 def load_processed_data(file_path=None):
     """
