@@ -29,6 +29,7 @@ def main():
     except FileNotFoundError:
         print("⚠️  Processed data not found. Downloading...")
         wiki_data, se_data = download_official_corpus()
+        from src.data_loader import download_new_politeness_data
         new_data = download_new_politeness_data()
         combined = pd.concat([wiki_data, se_data, new_data], ignore_index=True)
         #combined = pd.concat([wiki_data, se_data], ignore_index=True)
