@@ -52,19 +52,19 @@ An AI-powered system that classifies text as polite, neutral, or impolite using 
 - `src/data_loader.py` - Dataset download utilities
 - `data/processed/politeness_corpus_processed.csv` - Processed dataset
 
-### 🔄 Phase 2: Model Development (IN PROGRESS)
+### ✅ Phase 2: Model Development (COMPLETED)
 - ✅ Baseline: SVM with TF-IDF features
 - ✅ Deep Learning: LSTM for sequence modeling
 - ✅ Transformers: Fine-tune BERT for politeness classification
-- [ ] Rule-based: Integrate linguistic features
-- [ ] Ensemble: Combine all approaches
+- ✅ Rule-based: Integrate linguistic features
+- ✅ Ensemble: Combine all approaches
 
-### 📋 Phase 3: Evaluation & Deployment (UPCOMING)
-- [ ] Split data: 80% train / 20% test
-- [ ] Evaluate with accuracy, precision, recall, F1-score
-- [ ] Handle class imbalance (SMOTE, class weights)
-- [ ] Case study: Real-world validation
-- [ ] Implement feedback loop for adaptive learning
+### 📋 Phase 3: Evaluation & Deployment (COMPLETED)
+- ✅ Split data: 80% train / 20% test
+- ✅ Evaluate with accuracy, precision, recall, F1-score
+- ✅ Handle class imbalance (SMOTE, class weights)
+- ✅ Case study: Real-world validation
+- ✅ Implement feedback loop for adaptive learning
 
 ## 📊 Results
 
