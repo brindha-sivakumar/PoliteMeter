@@ -1,0 +1,56 @@
+{
+  "best_configuration": "BERT Heavy",
+  "best_weights": {
+    "svm": 0.3,
+    "bert": 0.5,
+    "rules": 0.2
+  },
+  "accuracy": 0.5807481751824818,
+  "all_configurations": [
+    {
+      "name": "Equal Weights",
+      "weights": {
+        "svm": 0.33,
+        "bert": 0.33,
+        "rules": 0.34
+      },
+      "accuracy": 0.5278284671532847
+    },
+    {
+      "name": "ML Heavy",
+      "weights": {
+        "svm": 0.4,
+        "bert": 0.4,
+        "rules": 0.2
+      },
+      "accuracy": 0.5250912408759124
+    },
+    {
+      "name": "SVM Heavy",
+      "weights": {
+        "svm": 0.5,
+        "bert": 0.3,
+        "rules": 0.2
+      },
+      "accuracy": 0.5246350364963503
+    },
+    {
+      "name": "BERT Heavy",
+      "weights": {
+        "svm": 0.3,
+        "bert": 0.5,
+        "rules": 0.2
+      },
+      "accuracy": 0.5807481751824818
+    },
+    {
+      "name": "Rules Heavy",
+      "weights": {
+        "svm": 0.35,
+        "bert": 0.35,
+        "rules": 0.3
+      },
+      "accuracy": 0.5264598540145985
+    }
+  ]
+}
